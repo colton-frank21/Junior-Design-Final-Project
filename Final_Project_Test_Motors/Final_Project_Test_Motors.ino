@@ -1,34 +1,29 @@
 #include "Arduino.h"
 #include "driver/ledc.h"
 
-#define MOTOR_PIN 26  // Change this to any suitable GPIO
-#define Button_PIN 5
-#define Output_PIN 18
+#define MOTOR_PIN_FORWARD 26  // Change this to any suitable GPIO
+#define MOTOR_PIN_BACKWARD 27
+//Inputs
+#define JOYSTICK_X 32
+#define JOYSTICK_Y 33
 
 
 
 void setup() {
     Serial.begin(115200);
-    pinMode(MOTOR_PIN, OUTPUT);
-    pinMode(Button_PIN, INPUT);
-    pinMode(Output_PIN, OUTPUT);
+    pinMode(MOTOR_PIN_FORWARD, OUTPUT);
+    pinMode(MOTOR_PIN_BACKWARD, OUTPUT);
+    pinMode(JOYSTICK_X, INPUT);
+    pinMode(JOYSTICK_Y, INPUT);
 
     Serial.println("ESP32 Motor PWM Control Initialized!");
 }
 
 void loop() {
-  digitalWrite(Output_PIN, HIGH);
+  int xPosition = analogRead(JOYSTICK_X);
+  int yPosition = analogRead(JOYSTICK_Y);
 
-  if (digitalRead(Button_PIN) == HIGH){
-    Serial.println("Motor Speed: ON");
-    digitalWrite(MOTOR_PIN, HIGH);
-    Serial.println("Input = " + String(digitalRead(Button_PIN)));
-    Serial.println("Output = " + String(ledcRead(MOTOR_PIN))); 
-  }
-  else if (digitalRead(Button_PIN) == LOW){
-    Serial.println("Motor Speed: off");
-    digitalWrite(MOTOR_PIN, LOW);
-    Serial.println("Input = " + String(digitalRead(Button_PIN)));
-    Serial.println("Output = " + String(ledcRead(MOTOR_PIN)));
-  }
+  Serial.println("X-Value: " + String(xPosition));
+  Serial.println("Y-Value: " + String(yPosition));
+  delay(2000);
 }
