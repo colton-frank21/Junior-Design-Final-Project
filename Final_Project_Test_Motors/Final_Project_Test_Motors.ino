@@ -25,5 +25,25 @@ void loop() {
 
   Serial.println("X-Value: " + String(xPosition));
   Serial.println("Y-Value: " + String(yPosition));
-  delay(2000);
+
+  if (xPosition >= 2200){
+    //Move forward
+    digitalWrite(MOTOR_PIN_FORWARD, HIGH);
+    digitalWrite(MOTOR_PIN_BACKWARD, LOW);
+  }
+  else if (xPosition <= 1600){
+    //Move Backward
+    digitalWrite(MOTOR_PIN_FORWARD, LOW);
+    digitalWrite(MOTOR_PIN_BACKWARD, HIGH);
+  }
+  else if (xPosition >= 1601 and xPosition <= 2199){
+    //Move stop
+    digitalWrite(MOTOR_PIN_FORWARD, LOW);
+    digitalWrite(MOTOR_PIN_BACKWARD, LOW);
+  }
+
+
+
+
+  delay(20);
 }
