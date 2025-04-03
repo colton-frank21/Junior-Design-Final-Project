@@ -1,4 +1,4 @@
-#include "Arduino.h"
+#include <Arduino.h>
 #include "driver/ledc.h"
 
 //Motor 1 
@@ -17,6 +17,9 @@
 
 #define PWM_FREQ 5000
 #define PWM_RESOLUTION 8
+
+#define Test_Pin 25     // GPIO 25
+#define Test_Channel 4
 
 void setup() {
     Serial.begin(115200);
@@ -52,6 +55,10 @@ void setup() {
     else{
       Serial.println("The Backward2 is good");
     }
+
+    //Test Square Wave setup
+    ledcAttachChannel(Test_Pin, PWM_FREQ, PWM_RESOLUTION, Test_Channel);
+    
 }
 
 void loop() {
@@ -71,6 +78,8 @@ void loop() {
     ledcWriteChannel(Backward_Channel, 0);
     ledcWriteChannel(Forward2_Channel, AbsSpeed);
     ledcWriteChannel(Backward2_Channel, 0);
+    //Test Channel PWM
+    ledcWriteChannel(Test_Channel, AbsSpeed);
   }
   else if (Speed <= -36){
     Serial.println("Move Backward");
@@ -85,10 +94,9 @@ void loop() {
     ledcWriteChannel(Backward_Channel, 0);
     ledcWriteChannel(Forward2_Channel, 0);
     ledcWriteChannel(Backward2_Channel, 0);
+    //Test Channel PWM
+    ledcWriteChannel(Test_Channel, 0);
   }
 
-
-
-
-  delay(100);
+  delay(200);
 }
