@@ -87,8 +87,5 @@ void loop() {
     ledcWriteChannel(Backward2_Channel, 0);
   }
 
-
-
-
   delay(100);
 }
