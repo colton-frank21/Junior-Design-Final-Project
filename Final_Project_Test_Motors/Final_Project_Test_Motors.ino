@@ -2,18 +2,20 @@
 #include "driver/ledc.h"
 
 //Motor 1 
-#define MOTOR_PIN_FORWARD 26  
-#define MOTOR_PIN_BACKWARD 27
-#define Forward_Channel 0
-#define Backward_Channel 1
+#define MOTOR1_Speed 12  
+#define MOTOR_PIN_FORWARD 27  
+#define MOTOR_PIN_BACKWARD 14
+#define MOTOR_Speed_Channel 0
+
 //Motor 2
-#define MOTOR2_PIN_FORWARD 14  
-#define MOTOR2_PIN_BACKWARD 12
-#define Forward2_Channel 2
-#define Backward2_Channel 3
+#define MOTOR2_Speed 33  
+#define MOTOR2_PIN_FORWARD 25  
+#define MOTOR2_PIN_BACKWARD 26
+#define MOTOR2_Speed_Channel 1
+
 //Inputs
 #define JOYSTICK_X 32
-#define JOYSTICK_Y 33
+#define JOYSTICK_Y 35
 
 #define PWM_FREQ 5000
 #define PWM_RESOLUTION 8
@@ -23,34 +25,26 @@ void setup() {
     pinMode(JOYSTICK_X, INPUT);
     pinMode(JOYSTICK_Y, INPUT);
 
-    //Forward motor 1
-    if (ledcAttachChannel(MOTOR_PIN_FORWARD, PWM_FREQ, PWM_RESOLUTION, Forward_Channel) == false){
+    //Motor 1 Pin Setup
+    pinMode(MOTOR_PIN_FORWARD, OUTPUT);
+    pinMode(MOTOR_PIN_BACKWARD, OUTPUT);
+    //PWM Speed Control for Motor 2
+    if (ledcAttachChannel(MOTOR1_Speed, PWM_FREQ, PWM_RESOLUTION, MOTOR_Speed_Channel) == false){
       Serial.println("The PWM did not get set up");
     }
     else{
       Serial.println("The Forward is good");
     }
-    //Backward motor 1
-    if (ledcAttachChannel(MOTOR_PIN_BACKWARD, PWM_FREQ, PWM_RESOLUTION, Backward_Channel) == false){
-      Serial.println("The PWM did not get set up");
-    }
-    else{
-      Serial.println("The Backward is good");
-    }
 
-    //Forwad motor 2
-    if (ledcAttachChannel(MOTOR2_PIN_FORWARD, PWM_FREQ, PWM_RESOLUTION, Forward2_Channel) == false){
+    //Motor 2 Pin Setup
+    pinMode(MOTOR2_PIN_FORWARD, OUTPUT);
+    pinMode(MOTOR2_PIN_BACKWARD, OUTPUT);
+    //PWM Speed Control for Motor 2
+    if (ledcAttachChannel(MOTOR2_Speed, PWM_FREQ, PWM_RESOLUTION, MOTOR_Speed_Channel) == false){
       Serial.println("The PWM did not get set up");
     }
     else{
-      Serial.println("The Forward2 is good");
-    }
-    //Backward motor 2 
-    if (ledcAttachChannel(MOTOR2_PIN_BACKWARD, PWM_FREQ, PWM_RESOLUTION, Backward2_Channel) ==s false){
-      Serial.println("The PWM did not get set up");
-    }
-    else{
-      Serial.println("The Backward2 is good");
+      Serial.println("The Forward is good");
     }
 }
 
@@ -62,30 +56,75 @@ void loop() {
 
   int Speed = map(xPosition, 0, 4095, -255, 255); //Setting up range to work with pwm output
   int AbsSpeed = abs(Speed); //Converting the speed to an absolute value for easier motor control
-  Serial.println("Speed: " + String(Speed));
-  Serial.println("AbsSpeed: " + String(AbsSpeed));
+  Serial.println("xSpeed: " + String(Speed));
+  //Serial.println("AbsSpeed: " + String(AbsSpeed));
 
-  if (Speed >= 36){
+  int ySpeed = map(yPosition, 0, 4095, -255, 255); //Setting up range to work with pwm output
+  int yAbsSpeed = abs(ySpeed); //Converting the speed to an absolute value for easier motor control
+  Serial.println("ySpeed: " + String(ySpeed));
+  //Serial.println("AbsSpeed: " + String(yAbsSpeed));
+
+  if (Speed >= 36 and ySpeed >= -40 and ySpeed <= 40){ //The and ySpeed >= -35 and ySpeed <= 35 is no left or right movement
     Serial.println("Move Forward");
-    ledcWriteChannel(Forward_Channel, AbsSpeed);
-    ledcWriteChannel(Backward_Channel, 0);
-    ledcWriteChannel(Forward2_Channel, AbsSpeed);
-    ledcWriteChannel(Backward2_Channel, 0);
+    //Outputs for Motor 1
+    ledcWriteChannel(MOTOR_Speed_Channel, AbsSpeed); //PWM to adjust speed of motors
+    digitalWrite(MOTOR_PIN_FORWARD, HIGH);
+    digitalWrite(MOTOR_PIN_BACKWARD, LOW);
+
+    //Outputs for Motor 2
+    ledcWriteChannel(MOTOR2_Speed_Channel, AbsSpeed);
+    digitalWrite(MOTOR2_PIN_FORWARD, HIGH);
+    digitalWrite(MOTOR2_PIN_BACKWARD, LOW);
   }
-  else if (Speed <= -36){
+  else if (Speed <= -36 and ySpeed >= -40 and ySpeed <= 40){
     Serial.println("Move Backward");
-    ledcWriteChannel(Forward_Channel, 0);
-    ledcWriteChannel(Backward_Channel, AbsSpeed);
-    ledcWriteChannel(Forward2_Channel, 0);
-    ledcWriteChannel(Backward2_Channel, AbsSpeed);
+    //Outputs for Motor 1
+    ledcWriteChannel(MOTOR_Speed_Channel, AbsSpeed); //PWM to adjust speed of motors
+    digitalWrite(MOTOR_PIN_FORWARD, LOW);
+    digitalWrite(MOTOR_PIN_BACKWARD, HIGH);
+
+    //Outputs for Motor 2
+    ledcWriteChannel(MOTOR2_Speed_Channel, AbsSpeed);
+    digitalWrite(MOTOR2_PIN_FORWARD, LOW);
+    digitalWrite(MOTOR2_PIN_BACKWARD, HIGH);
   }
-  else if (Speed >= -35 and Speed <= 35){
+  else if (Speed >= -35 and Speed <= 35 and ySpeed >= -35 and ySpeed <= 35){
     Serial.println("Stop");
-    ledcWriteChannel(Forward_Channel, 0);
-    ledcWriteChannel(Backward_Channel, 0);
-    ledcWriteChannel(Forward2_Channel, 0);
-    ledcWriteChannel(Backward2_Channel, 0);
+    //Outputs for Motor 1
+    ledcWriteChannel(MOTOR_Speed_Channel, 0); //PWM to adjust speed of motors
+    digitalWrite(MOTOR_PIN_FORWARD, LOW);
+    digitalWrite(MOTOR_PIN_BACKWARD, LOW);
+
+    //Outputs for Motor 2
+    ledcWriteChannel(MOTOR2_Speed_Channel, 0);
+    digitalWrite(MOTOR2_PIN_FORWARD, LOW);
+    digitalWrite(MOTOR2_PIN_BACKWARD, LOW);
   }
+  else if (ySpeed >= 36 and Speed >= -40 and Speed <= 40){ 
+    Serial.println("Move Right");
+    //Outputs for Motor 1
+    ledcWriteChannel(MOTOR_Speed_Channel, yAbsSpeed); //PWM to adjust speed of motors
+    digitalWrite(MOTOR_PIN_FORWARD, HIGH);
+    digitalWrite(MOTOR_PIN_BACKWARD, LOW);
+
+    //Outputs for Motor 2
+    ledcWriteChannel(MOTOR2_Speed_Channel, yAbsSpeed);
+    digitalWrite(MOTOR2_PIN_FORWARD, LOW);
+    digitalWrite(MOTOR2_PIN_BACKWARD, HIGH);
+  }
+  else if (ySpeed <= -36 and Speed >= -40 and Speed <= 40){ 
+    Serial.println("Move Left");
+    //Outputs for Motor 1
+    ledcWriteChannel(MOTOR_Speed_Channel, yAbsSpeed); //PWM to adjust speed of motors
+    digitalWrite(MOTOR_PIN_FORWARD, LOW);
+    digitalWrite(MOTOR_PIN_BACKWARD, HIGH);
+
+    //Outputs for Motor 2
+    ledcWriteChannel(MOTOR2_Speed_Channel, yAbsSpeed);
+    digitalWrite(MOTOR2_PIN_FORWARD, HIGH);
+    digitalWrite(MOTOR2_PIN_BACKWARD, LOW);
+  }
+  
 
   delay(100);
 }
